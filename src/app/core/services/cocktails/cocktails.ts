@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { BaseApi } from '../base-api';
+import { BaseHttpApi } from '../base-http-api';
 import { Cocktail, CocktailResponse } from '../../types';
 
 @Injectable({ providedIn: 'root' })
-export class Cocktails extends BaseApi {
+export class Cocktails extends BaseHttpApi {
 
     searchByName(name: string): Observable<Cocktail[]> {
         return super.get<CocktailResponse>('search.php', { s: name })

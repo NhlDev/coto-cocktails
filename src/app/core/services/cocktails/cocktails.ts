@@ -1,20 +1,30 @@
 import { Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
 
 import { BaseApi } from '../base-api';
+import { Cocktail, CocktailResponse } from '../../types';
 
 @Injectable({ providedIn: 'root' })
 export class Cocktails extends BaseApi {
 
-    searchByName(name: string) {
-        return this.get<any>('search.php', { s: name });
+    searchByName(name: string): Observable<Cocktail[]> {
+        return super.get<CocktailResponse>('search.php', { s: name })
+            .pipe(
+                map(response => response.drinks || [])
+            );
     }
 
-    searchByIngredient(ingredient: string) {
-        return this.get<any>('search.php', { i: ingredient });
+    searchByIngredient(ingredient: string): Observable<Cocktail[]> {
+        return super.get<CocktailResponse>('search.php', { i: ingredient })
+            .pipe(
+                map(response => response.drinks || [])
+            );
     }
 
-    searchByID(id: string) {
-        return this.get<any>('lookup.php', { i: id });
+    searchByID(id: number): Observable<Cocktail[]> {
+        return super.get<CocktailResponse>('lookup.php', { i: id })
+            .pipe(
+                map(response => response.drinks || [])
+            );
     }
-
 }

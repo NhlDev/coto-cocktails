@@ -1,0 +1,1 @@
+export type { FilterModel } from './filter-model';

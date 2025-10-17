@@ -11,7 +11,13 @@
   <section>
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Buscar cocktail</mat-label>
-      <input matInput placeholder="Ej: Margarita" formControlName="searchInput" maxlength="50" />
+      <input
+        matInput
+        placeholder="Ej: Margarita"
+        formControlName="searchInput"
+        maxlength="50"
+        [type]="searchFormGroup.get('filterBy')?.value === 'id' ? 'number' : 'text'"
+      />
     </mat-form-field>
   </section>
 

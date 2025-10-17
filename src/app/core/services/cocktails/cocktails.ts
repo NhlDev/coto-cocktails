@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map, Observable, switchMap, forkJoin, of } from 'rxjs';
 
 import { BaseHttpApi } from '../base-http-api';
 import { Cocktail, CocktailResponse } from '../../types';
@@ -15,9 +15,24 @@ export class Cocktails extends BaseHttpApi {
     }
 
     searchByIngredient(ingredient: string): Observable<Cocktail[]> {
-        return super.get<CocktailResponse>('search.php', { i: ingredient })
+        return super.get<CocktailResponse>('filter.php', { i: ingredient })
             .pipe(
-                map(response => response.drinks || [])
+                switchMap(response => {
+                    const minimal = Array.isArray(response.drinks) ? response.drinks : [];
+                    if (!minimal.length) return of([]);
+
+                    // Para cada idDrink, pido el cocktail completo y lo reduzco a un array
+                    return forkJoin(
+                        minimal
+                            .map(d => d.idDrink)
+                            .filter((id): id is string => !!id)
+                            .map(id =>
+                                this.searchByID(+id).pipe(
+                                    map(list => list[0])
+                                )
+                            )
+                    ).pipe(map(items => items.filter(Boolean) as Cocktail[]));
+                })
             );
     }
 

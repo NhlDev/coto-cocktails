@@ -7,10 +7,10 @@
   grid-template-columns: 0 1fr;
   gap: 16px;
   min-height: calc(100dvh - 40px);
+  z-index: 1;
 
   .filters-toggle-button {
     position: absolute;
-    left: 0;
     z-index: 10;
     transition: transform 0.3s ease;
   }
@@ -19,16 +19,49 @@
     transition: transform 0.3s ease;
     transform: translateX(-100%);
     overflow: hidden;
+    z-index: 1;
   }
 
   &.showFilters {
     grid-template-columns: var(--sidenav-width) 1fr;
-    .filters-toggle-button {
-      transform: translateX(calc(var(--sidenav-width) - 3rem)); // boton para mostrar/ocultar filtros
-    }
-
     .filters-panel {
       transform: translateX(0);
+    }
+
+    .filters-toggle-button {
+      // cuando esta el aside visible, muevo el boton al borde del mismo
+      transform: translateX(calc(var(--sidenav-width) - 3rem));
+    }
+  }
+}
+
+@media (max-width: 720px) {
+  .list-layout {
+    grid-template-columns: 1fr;
+
+    .filters-panel {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      max-width: 100vw;
+      background: var(--mat-sys-surface);
+      z-index: 1050;
+      overflow: auto;
+      transform: translateX(-100%);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+    }
+
+    &.showFilters {
+      // aside visible sobre el contenido solo en mobile
+      .filters-panel {
+        transform: translateX(0);
+        z-index: 1;
+      }
+
+      .filters-toggle-button {
+        transform: translateX(calc(100vw - 3rem));
+      }
     }
   }
 }

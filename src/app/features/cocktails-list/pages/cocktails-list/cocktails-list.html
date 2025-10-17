@@ -1,0 +1,23 @@
+<div class="list-layout" [class.showFilters]="showFiltersPanel()">
+  <!-- Toggle button remains visible always -->
+  <button
+    class="filters-toggle-button"
+    type="button"
+    mat-icon-button
+    (click)="toggleFiltersPanel()"
+    [attr.aria-pressed]="showFiltersPanel()"
+    aria-label="Alternar filtros"
+    title="{{ showFiltersPanel() ? 'Ocultar filtros' : 'Mostrar filtros' }}"
+  >
+    <mat-icon>{{ showFiltersPanel() ? 'filter_alt_off' : 'filter_list' }}</mat-icon>
+  </button>
+
+  <aside class="filters-panel">
+    <app-search-bar></app-search-bar>
+  </aside>
+
+  <main>
+    <!-- Aquí va la lista -->
+    CONTENIDO ACA {{ showFiltersPanel() }}
+  </main>
+</div>

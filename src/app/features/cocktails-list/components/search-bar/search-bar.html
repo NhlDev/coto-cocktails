@@ -1,0 +1,23 @@
+<form class="search-bar" [formGroup]="searchFormGroup" (ngSubmit)="onSubmit()">
+  <section>
+    <h3>Buscar cocktail por:</h3>
+    <mat-button-toggle-group name="searchBy" aria-label="Buscar por" formControlName="filterBy">
+      <mat-button-toggle value="name">Nombre</mat-button-toggle>
+      <mat-button-toggle value="ingredient">Ingredientes</mat-button-toggle>
+      <mat-button-toggle value="id">Identificador</mat-button-toggle>
+    </mat-button-toggle-group>
+  </section>
+
+  <section>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Buscar cocktail</mat-label>
+      <input matInput placeholder="Ej: Margarita" formControlName="searchInput" maxlength="50" />
+    </mat-form-field>
+  </section>
+
+  <section>
+    <button type="submit" mat-raised-button color="primary" [disabled]="searchFormGroup.invalid">
+      Buscar
+    </button>
+  </section>
+</form>

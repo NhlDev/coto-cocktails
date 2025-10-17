@@ -1,0 +1,34 @@
+:host {
+  --sidenav-width: 25vw;
+}
+
+.list-layout {
+  display: grid;
+  grid-template-columns: 0 1fr;
+  gap: 16px;
+  min-height: calc(100dvh - 40px);
+
+  .filters-toggle-button {
+    position: absolute;
+    left: 0;
+    z-index: 10;
+    transition: transform 0.3s ease;
+  }
+
+  .filters-panel {
+    transition: transform 0.3s ease;
+    transform: translateX(-100%);
+    overflow: hidden;
+  }
+
+  &.showFilters {
+    grid-template-columns: var(--sidenav-width) 1fr;
+    .filters-toggle-button {
+      transform: translateX(calc(var(--sidenav-width) - 3rem)); // boton para mostrar/ocultar filtros
+    }
+
+    .filters-panel {
+      transform: translateX(0);
+    }
+  }
+}

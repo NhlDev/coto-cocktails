@@ -70,9 +70,18 @@ describe('Cocktails Service', () => {
         expect(cocktails).toEqual(mockResponseArray.drinks as Cocktail[]);
       });
 
-      const request = httpMock.expectOne(`${baseApiUrl}search.php?i=${TestQueryString}`);
-      expect(request.request.method).toBe('GET');
-      request.flush(mockResponseArray);
+      const requestIngredients = httpMock.expectOne(`${baseApiUrl}filter.php?i=${TestQueryString}`);
+      expect(requestIngredients.request.method).toBe('GET');
+      requestIngredients.flush(mockResponseArray);
+
+      // Simular las llamadas internas a searchByID para cada idDrink
+      mockResponseArray.drinks?.forEach(drink => {
+        const requestByID = httpMock.expectOne(`${baseApiUrl}lookup.php?i=${drink.idDrink}`);
+        expect(requestByID.request.method).toBe('GET');
+        requestByID.flush({
+          drinks: [drink]
+        });
+      });
     });
 
     it('should return an empty array when no cocktails are found', () => {
@@ -80,7 +89,7 @@ describe('Cocktails Service', () => {
         expect(cocktails).toEqual([]);
       });
 
-      const request = httpMock.expectOne(`${baseApiUrl}search.php?i=${TestQueryString}`);
+      const request = httpMock.expectOne(`${baseApiUrl}filter.php?i=${TestQueryString}`);
       expect(request.request.method).toBe('GET');
       request.flush(emptyMockResponse);
     });

@@ -20,4 +20,10 @@ describe('CocktailItemSkeleton', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should have skeleton elements', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const skeletonElements = compiled.querySelectorAll('.skeleton');
+    expect(skeletonElements.length).toBeGreaterThan(0);
+  });
 });

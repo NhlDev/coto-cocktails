@@ -1,12 +1,13 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { By } from '@angular/platform-browser';
 
 import { CocktailsList } from './cocktails-list';
 import { Cocktails } from '../../../../core/services';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { BASE_API_URL } from '../../../../core';
 import { FilterModel } from '../../types';
 import { Cocktail } from '../../../../core/types';
-
 
 describe('CocktailsList', () => {
   let component: CocktailsList;
@@ -16,13 +17,12 @@ describe('CocktailsList', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CocktailsList, HttpClientTestingModule],
+      imports: [CocktailsList, HttpClientTestingModule, ScrollingModule],
       providers: [
         Cocktails,
         { provide: BASE_API_URL, useValue: baseApiUrl }
       ],
-    })
-      .compileComponents();
+    }).compileComponents();
 
     httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(CocktailsList);
@@ -95,7 +95,7 @@ describe('CocktailsList', () => {
     const mockResponse = { drinks: [{ idDrink: '11007', strDrink: 'Margarita' }] };
     component.filterCocktails(filter);
     const req = httpMock.expectOne(`${baseApiUrl}lookup.php?i=11007`);
-    expect(req.request.method).toBe('GET');
+    expect(req.request.method).toBe('GET'); 
     req.flush({ drinks: [{ idDrink: '11007', strDrink: 'Margarita' }] });
     expect(component.cocktailsList()).toEqual(mockResponse.drinks as Cocktail[]);
     expect(component.loading()).toBeFalse();
@@ -119,18 +119,31 @@ describe('CocktailsList', () => {
     expect(skeletonElements.length).toBeGreaterThan(0);
   });
 
-  it('should display cocktails when loaded', () => {
+  it('should display cocktails when loaded', fakeAsync(() => {
     const mockCocktails = [
       { idDrink: '11007', strDrink: 'Margarita' },
       { idDrink: '11008', strDrink: 'Manhattan' }
     ] as Cocktail[];
+
     component.cocktailsList.set(mockCocktails);
     component.loading.set(false);
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const cocktailItems = compiled.querySelectorAll('app-cocktail-item');
-    expect(cocktailItems.length).toBe(2);
-  });
+
+    // asegurar tamaño del viewport y forzar medición
+    const viewportDE = fixture.debugElement.query(By.css('cdk-virtual-scroll-viewport'));
+    (viewportDE.nativeElement as HTMLElement).style.height = '600px';
+    const viewport = viewportDE.injector.get(CdkVirtualScrollViewport);
+    viewport.checkViewportSize();
+    tick(0); // permite al CDK completar el render
+    fixture.detectChanges();
+
+    expect(viewport.getDataLength()).toBe(2);
+    const range = viewport.getRenderedRange();
+    expect(range.end - range.start).toBeGreaterThan(0);
+
+    const rendered = (fixture.nativeElement as HTMLElement).querySelectorAll('app-cocktail-item');
+    expect(rendered.length).toBeGreaterThan(0);
+  }));
 
   it('should show no results message when cocktail list is empty', () => {
     component.cocktailsList.set([]);

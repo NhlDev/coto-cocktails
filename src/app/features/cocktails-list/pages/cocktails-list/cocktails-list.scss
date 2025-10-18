@@ -34,12 +34,23 @@
     }
   }
 
-  .no-results{
+  .no-results {
     font-size: 1.2rem;
     color: var(--mat-sys-on-surface-variant);
     text-align: center;
     margin-top: 2rem;
   }
+
+  main {
+    overflow: hidden;
+    padding-block-end: 1vh;
+  }
+}
+
+.virtual-viewport {
+  display: block;
+  height: 100dvh;
+  width: 100%;
 }
 
 @media (max-width: 720px) {

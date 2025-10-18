@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from "@angular/material/input";
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { finalize } from 'rxjs';
 
 import { FilterModel } from '../../types';
@@ -19,10 +20,11 @@ import { CocktailItemSkeleton } from '../../components/cocktail-item-skeleton/co
     MatIconModule,
     MatListModule,
     MatInputModule,
+    ScrollingModule,
     SearchBar,
     CocktailItem,
     CocktailItemSkeleton,
-],
+  ],
   templateUrl: './cocktails-list.html',
   styleUrl: './cocktails-list.scss'
 })
@@ -35,6 +37,10 @@ export class CocktailsList {
   showFiltersPanel = signal(true);
   cocktailsList = signal<Cocktail[] | null>(null);
   loading = signal(false);
+
+  // para el virtual scroll
+  readonly estimatedSize = 200;
+  readonly trackBy = (idx: number, c: Cocktail) => c.idDrink;
 
   constructor() {
     if (this.isHandset) {

@@ -16,24 +16,25 @@
   </aside>
 
   <main>
-    <mat-list>      
 
-      @if(loading()){
-        @for (_ of [0,1,2,3,4,5]; track _) {
+     @if (loading()) {
+        @for (_ of [0,1,2,3,4,5,6,7,8,9]; track _) {
           <app-cocktail-item-skeleton />
         }
       }
-      @else if(cocktailsList()?.length === 0){
-        <div class="no-results">No se encontraron cócteles que coincidan con los criterios de búsqueda.</div>
-      }
-      @else if(cocktailsList() === null){
+      @else if (cocktailsList() === null) {
         <div class="no-results">Por favor, realiza una búsqueda para ver los cócteles.</div>
       }
-
-      @for (cocktail of cocktailsList(); track cocktail.idDrink) {
-        <app-cocktail-item [cocktail]="cocktail" />
+      @else if ((cocktailsList()?.length || 0) === 0) {
+        <div class="no-results">No se encontraron cócteles que coincidan con los criterios de búsqueda.</div>
+      }
+      @else {
+        <cdk-virtual-scroll-viewport class="virtual-viewport" [itemSize]="estimatedSize" orientation="vertical">
+          <div class="virtual-item" *cdkVirtualFor="let cocktail of cocktailsList(); trackBy: trackBy">
+            <app-cocktail-item [cocktail]="cocktail" />
+          </div>
+        </cdk-virtual-scroll-viewport>
       }
       
-    </mat-list>
   </main>
 </div>

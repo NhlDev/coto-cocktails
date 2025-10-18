@@ -3,7 +3,7 @@
   <div class="cocktail-info">
     <h1>{{ cocktail()?.strDrink }}</h1>
     <ul>
-      @for( item of ingredientsAndMeasures(); track item) {
+      @for( item of ingredientsAndMeasures(); track $index) {
       <li>{{ item }}</li>
       }
     </ul>

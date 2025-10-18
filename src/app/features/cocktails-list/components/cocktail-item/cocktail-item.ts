@@ -1,6 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { Cocktail } from '../../../../core/types';
 
@@ -9,6 +10,7 @@ import { Cocktail } from '../../../../core/types';
   imports: [
     MatIconButton,
     MatIcon,
+    MatMenuModule,
   ],
   templateUrl: './cocktail-item.html',
   styleUrl: './cocktail-item.scss'
@@ -30,5 +32,4 @@ export class CocktailItem {
     }
     return ingredients;
   });
-
 }

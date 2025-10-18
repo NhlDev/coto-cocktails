@@ -10,7 +10,18 @@
     <p>{{ cocktail()?.strInstructionsES }}</p>
   </div>
 
-  <button class="cocktail-menu" matIconButton aria-label="Más opciones">
+  <button class="cocktail-menu" matIconButton aria-label="Más opciones" [matMenuTriggerFor]="menu">
     <mat-icon>more_vert</mat-icon>
   </button>
 </div>
+
+<mat-menu #menu="matMenu">
+  <button mat-menu-item>
+    <mat-icon>favorite</mat-icon>
+    <span>Agregar a favoritos</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon>liquor</mat-icon>
+    <span>Ver detalles</span>
+  </button>
+</mat-menu>

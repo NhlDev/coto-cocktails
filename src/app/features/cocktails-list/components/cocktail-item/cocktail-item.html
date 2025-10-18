@@ -16,7 +16,7 @@
     <mat-icon>favorite</mat-icon>
     <span>Agregar a favoritos</span>
   </button>
-  <button class="btn-details" mat-menu-item (click)="openDetails()">
+  <button class="btn-details" mat-menu-item [routerLink]="['/cocktail', cocktail()?.idDrink]">
     <mat-icon>liquor</mat-icon>
     <span>Ver detalles</span>
   </button>

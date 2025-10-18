@@ -1,5 +1,5 @@
 :host {
-  --sidenav-width: 25vw;
+  --sidenav-width: 340px;
 }
 
 .list-layout {
@@ -56,7 +56,7 @@
   width: 100%;
 }
 
-@media (max-width: 720px) {
+@media only screen and (max-width: 768px) {
   .list-layout {
     grid-template-columns: 1fr;
 

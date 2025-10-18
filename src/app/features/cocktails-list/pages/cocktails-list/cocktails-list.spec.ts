@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { By } from '@angular/platform-browser';
+import { ActivatedRoute, convertToParamMap, RouterLink } from '@angular/router';
 
 import { CocktailsList } from './cocktails-list';
 import { Cocktails } from '../../../../core/services';
@@ -17,10 +18,11 @@ describe('CocktailsList', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CocktailsList, HttpClientTestingModule, ScrollingModule],
+      imports: [CocktailsList, HttpClientTestingModule, ScrollingModule, RouterLink],
       providers: [
         Cocktails,
-        { provide: BASE_API_URL, useValue: baseApiUrl }
+        { provide: BASE_API_URL, useValue: baseApiUrl },
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '11007' }) } } }
       ],
     }).compileComponents();
 
@@ -95,7 +97,7 @@ describe('CocktailsList', () => {
     const mockResponse = { drinks: [{ idDrink: '11007', strDrink: 'Margarita' }] };
     component.filterCocktails(filter);
     const req = httpMock.expectOne(`${baseApiUrl}lookup.php?i=11007`);
-    expect(req.request.method).toBe('GET'); 
+    expect(req.request.method).toBe('GET');
     req.flush({ drinks: [{ idDrink: '11007', strDrink: 'Margarita' }] });
     expect(component.cocktailsList()).toEqual(mockResponse.drinks as Cocktail[]);
     expect(component.loading()).toBeFalse();
@@ -152,6 +154,6 @@ describe('CocktailsList', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const noResultsElement = compiled.querySelector('.no-results');
     expect(noResultsElement).toBeTruthy();
-  }); 
+  });
 
 });

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ComponentRef } from '@angular/core';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { CocktailItem } from './cocktail-item';
 import { Cocktail } from '../../../../core/types';
@@ -20,11 +21,14 @@ describe('CocktailItem', () => {
     strMeasure3: '1 oz ',
     strInstructions: 'Shake well with ice and strain into a cocktail glass.',
     strDrinkThumb: 'https://www.thecocktaildb.com/images/media/drink/5noda61589575158.jpg'
-  } as Cocktail
+  } as Cocktail;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CocktailItem]
+      imports: [
+        CocktailItem,
+        RouterTestingModule,
+      ]
     })
       .compileComponents();
 

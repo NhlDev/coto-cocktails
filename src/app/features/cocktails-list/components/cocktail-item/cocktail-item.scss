@@ -1,0 +1,31 @@
+.cocktail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+
+  .cocktail-image {
+    width: 10vw;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    aspect-ratio: 1 / 1;
+  }
+
+  .cocktail-info {
+    flex: 1;
+    margin-left: 16px;
+
+    h1 {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+  }
+
+  .cocktail-menu {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+}

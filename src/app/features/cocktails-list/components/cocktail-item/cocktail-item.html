@@ -1,0 +1,16 @@
+<div class="cocktail-item">
+  <img class="cocktail-image" [src]="cocktail()?.strDrinkThumb" [alt]="cocktail()?.strDrink" />
+  <div class="cocktail-info">
+    <h1>{{ cocktail()?.strDrink }}</h1>
+    <ul>
+      @for( item of ingredientsAndMeasures(); track item) {
+      <li>{{ item }}</li>
+      }
+    </ul>
+    <p>{{ cocktail()?.strInstructionsES }}</p>
+  </div>
+
+  <button class="cocktail-menu" matIconButton aria-label="Más opciones">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+</div>

@@ -44,21 +44,28 @@ describe('CocktailItem', () => {
     expect(componentRef.instance.cocktail()).toEqual(mockCocktail);
   });
 
-  it('should compute ingredients and measures', () => {
+  it('should render cocktail name and image', () => {
     componentRef.setInput('cocktail', mockCocktail);
     fixture.detectChanges();
-    const ingredientsAndMeasures = component.ingredientsAndMeasures();
-    expect(ingredientsAndMeasures).toEqual([
-      '1 1/2 oz  Tequila',
-      '1/2 oz  Triple sec',
-      '1 oz  Lime juice'
-    ]);
+    const compiled = fixture.nativeElement as HTMLElement;
+    const nameElement = compiled.querySelector('.cocktail-info h1');
+    const imageElement = compiled.querySelector('.cocktail-image') as HTMLImageElement;
+    expect(nameElement?.textContent).toContain('Margarita');
+    expect(imageElement.src).toBe(mockCocktail.strDrinkThumb);
   });
 
-  it('should return empty array if no cocktail is provided', () => {
-    componentRef.setInput('cocktail', null);
+  it('should have menu button', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const menuButton = compiled.querySelector('.cocktail-menu');
+    expect(menuButton).toBeTruthy();
+  });
+
+  it('should show menu on button click', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const menuButton = compiled.querySelector('.cocktail-menu') as HTMLElement;
+    menuButton.click();
     fixture.detectChanges();
-    const ingredientsAndMeasures = component.ingredientsAndMeasures();
-    expect(ingredientsAndMeasures).toEqual([]);
+    const menu = compiled.querySelector('mat-menu');
+    expect(menu).toBeTruthy();
   });
 });

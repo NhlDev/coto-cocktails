@@ -1,9 +1,11 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import {  MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { Cocktail } from '../../../../core/types';
+import { CocktailDetailsModal } from '../cocktail-details-modal/cocktail-details-modal';
 
 @Component({
   selector: 'app-cocktail-item',
@@ -11,25 +13,20 @@ import { Cocktail } from '../../../../core/types';
     MatIconButton,
     MatIcon,
     MatMenuModule,
+    MatDialogModule,
   ],
   templateUrl: './cocktail-item.html',
   styleUrl: './cocktail-item.scss'
 })
 export class CocktailItem {
   cocktail = input<Cocktail>();
+  dialog = inject(MatDialog);
 
-  ingredientsAndMeasures = computed(() => {
-    if (!this.cocktail()) {
-      return [];
-    }
-    const ingredients: string[] = [];
-    for (let i = 1; i <= 15; i++) {
-      const ingredient = this.cocktail()![`strIngredient${i}` as keyof Cocktail];
-      const measure = this.cocktail()![`strMeasure${i}` as keyof Cocktail];
-      if (ingredient) {
-        ingredients.push(measure ? `${measure} ${ingredient}` : ingredient);
+  openDetails() {
+    this.dialog.open(CocktailDetailsModal, {
+      data: {
+        cocktail: this.cocktail(),
       }
-    }
-    return ingredients;
-  });
+    });
+  }
 }

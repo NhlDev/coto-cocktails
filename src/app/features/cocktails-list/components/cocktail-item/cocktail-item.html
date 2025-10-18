@@ -2,12 +2,8 @@
   <img class="cocktail-image" [src]="cocktail()?.strDrinkThumb" [alt]="cocktail()?.strDrink" />
   <div class="cocktail-info">
     <h1>{{ cocktail()?.strDrink }}</h1>
-    <ul>
-      @for( item of ingredientsAndMeasures(); track $index) {
-      <li>{{ item }}</li>
-      }
-    </ul>
-    <p>{{ cocktail()?.strInstructionsES }}</p>
+    <p>{{ cocktail()?.strAlcoholic }} - {{ cocktail()?.strCategory }}</p>
+    <p>{{ cocktail()?.strGlass }}</p>
   </div>
 
   <button class="cocktail-menu" matIconButton aria-label="Más opciones" [matMenuTriggerFor]="menu">
@@ -20,7 +16,7 @@
     <mat-icon>favorite</mat-icon>
     <span>Agregar a favoritos</span>
   </button>
-  <button mat-menu-item>
+  <button class="btn-details" mat-menu-item (click)="openDetails()">
     <mat-icon>liquor</mat-icon>
     <span>Ver detalles</span>
   </button>

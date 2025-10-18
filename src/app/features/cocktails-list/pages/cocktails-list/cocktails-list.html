@@ -16,7 +16,24 @@
   </aside>
 
   <main>
-    <!-- Aquí va la lista -->
-    CONTENIDO ACA {{ showFiltersPanel() }}
+    <mat-list>      
+
+      @if(loading()){
+        @for (_ of [0,1,2,3,4,5]; track _) {
+          <app-cocktail-item-skeleton />
+        }
+      }
+      @else if(cocktailsList()?.length === 0){
+        <div class="no-results">No se encontraron cócteles que coincidan con los criterios de búsqueda.</div>
+      }
+      @else if(cocktailsList() === null){
+        <div class="no-results">Por favor, realiza una búsqueda para ver los cócteles.</div>
+      }
+
+      @for (cocktail of cocktailsList(); track cocktail.idDrink) {
+        <app-cocktail-item [cocktail]="cocktail" />
+      }
+      
+    </mat-list>
   </main>
 </div>

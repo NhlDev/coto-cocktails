@@ -33,6 +33,13 @@
       transform: translateX(calc(var(--sidenav-width) - 3rem));
     }
   }
+
+  .no-results{
+    font-size: 1.2rem;
+    color: var(--mat-sys-on-surface-variant);
+    text-align: center;
+    margin-top: 2rem;
+  }
 }
 
 @media (max-width: 720px) {

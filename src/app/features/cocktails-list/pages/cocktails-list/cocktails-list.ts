@@ -1,11 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from "@angular/material/input";
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { finalize } from 'rxjs';
+import { finalize, map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { FilterModel } from '../../types';
 import { Cocktails } from '../../../../core/services';
@@ -30,7 +31,11 @@ import { CocktailItemSkeleton } from '../../components/cocktail-item-skeleton/co
 })
 export class CocktailsList {
   private readonly breakpointObserver = inject(BreakpointObserver);
-  private readonly isHandset = this.breakpointObserver.isMatched(Breakpoints.Handset);
+  // isHandset ahora es reactivo
+  readonly isHandset = toSignal(
+    this.breakpointObserver.observe(Breakpoints.Handset).pipe(map(r => r.matches)),
+    { initialValue: this.breakpointObserver.isMatched(Breakpoints.Handset) }
+  );
 
   private readonly cocktailService = inject(Cocktails);
 
@@ -38,13 +43,13 @@ export class CocktailsList {
   cocktailsList = signal<Cocktail[] | null>(null);
   loading = signal(false);
 
-  // para el virtual scroll
-  readonly estimatedSize = 200;
+  // para el virtual scroll: cambia según breakpoint
+  readonly estimatedSize = computed(() => (this.isHandset() ? 140 : 200));
   readonly trackBy = (idx: number, c: Cocktail) => c.idDrink;
 
   constructor() {
-    if (this.isHandset) {
-      this.showFiltersPanel.set(false); // para mantener los filtros cerrados en dispositivos móviles
+    if (this.isHandset()) {
+      this.showFiltersPanel.set(false); // mantener los filtros cerrados en móviles
     }
   }
 
@@ -53,8 +58,6 @@ export class CocktailsList {
   }
 
   filterCocktails(filter: FilterModel) {
-    console.log('Filtering cocktails with:', filter);
-    // Lógica para filtrar la lista de cócteles según el filtro recibido
     let cocktailsObservable;
     this.loading.set(true);
     this.cocktailsList.set(null);
@@ -77,6 +80,10 @@ export class CocktailsList {
     cocktailsObservable
       ?.pipe(finalize(() => this.loading.set(false)))
       .subscribe(cocktails => this.cocktailsList.set(cocktails));
+
+      if(this.isHandset()){
+        this.toggleFiltersPanel();
+      }
 
   }
 }

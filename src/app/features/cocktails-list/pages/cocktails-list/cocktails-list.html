@@ -7,6 +7,7 @@
     [attr.aria-pressed]="showFiltersPanel()"
     aria-label="Alternar filtros"
     title="{{ showFiltersPanel() ? 'Ocultar filtros' : 'Mostrar filtros' }}"
+    
   >
     <mat-icon>{{ showFiltersPanel() ? 'filter_alt_off' : 'filter_list' }}</mat-icon>
   </button>
@@ -29,7 +30,7 @@
         <div class="no-results">No se encontraron cócteles que coincidan con los criterios de búsqueda.</div>
       }
       @else {
-        <cdk-virtual-scroll-viewport class="virtual-viewport" [itemSize]="estimatedSize" orientation="vertical">
+        <cdk-virtual-scroll-viewport class="virtual-viewport" [itemSize]="estimatedSize()" orientation="vertical">
           <div class="virtual-item" *cdkVirtualFor="let cocktail of cocktailsList(); trackBy: trackBy">
             <app-cocktail-item [cocktail]="cocktail" />
           </div>

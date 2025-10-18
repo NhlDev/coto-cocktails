@@ -13,6 +13,9 @@
     position: absolute;
     z-index: 10;
     transition: transform 0.3s ease;
+    left: 0.1rem;
+    background: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface-variant);
   }
 
   .filters-panel {
@@ -38,7 +41,7 @@
     font-size: 1.2rem;
     color: var(--mat-sys-on-surface-variant);
     text-align: center;
-    margin-top: 2rem;
+    margin-top: 3rem;
   }
 
   main {
@@ -49,7 +52,7 @@
 
 .virtual-viewport {
   display: block;
-  height: 100dvh;
+  height: calc(100dvh - 70px);
   width: 100%;
 }
 

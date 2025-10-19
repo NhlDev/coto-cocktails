@@ -48,4 +48,7 @@ export type Cocktail = {
   strImageAttribution: string
   strCreativeCommonsConfirmed: string
   dateModified: string
+
+  // para detectar si es favorito (no viene en la API)
+  isFavorite?: boolean
 }

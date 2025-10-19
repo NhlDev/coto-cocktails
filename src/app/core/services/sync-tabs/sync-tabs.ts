@@ -14,7 +14,7 @@ export class SyncTabs implements OnDestroy {
   favoritesSignal = signal<Cocktail[]>([])
   cocktailsSignal = signal<Cocktail[]>([])
   scrollStateSignal = signal<number>(0)
-  filtersSignal = signal<FilterModel>({ filterBy: 'name', searchInput: '' })
+  filtersSignal = signal<FilterModel | null>(null)
 
   constructor() {
     this.channel = new BroadcastChannel(CHANNEL_NAME);

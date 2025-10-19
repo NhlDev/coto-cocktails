@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output, } from '@angular/core';
+import { Component, effect, inject, input, OnInit, output, } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { FilterModel } from '../../types';
+
+const sessionStorageKey = 'cocktails-list-filters';
 
 @Component({
   selector: 'app-search-bar',
@@ -22,10 +24,10 @@ import { FilterModel } from '../../types';
   templateUrl: './search-bar.html',
   styleUrl: './search-bar.scss'
 })
-export class SearchBar {
+export class SearchBar implements OnInit {
   private fb = inject(FormBuilder);
 
-  initialFilters = input<FilterModel>({
+  initialFilters = input<FilterModel | null>({
     searchInput: '',
     filterBy: 'name',
   });
@@ -39,17 +41,27 @@ export class SearchBar {
   constructor() {
     effect(() => {
       const filters = this.initialFilters();
+      if (!filters) return;
+
       this.searchFormGroup.setValue({
         searchInput: filters.searchInput,
         filterBy: filters.filterBy,
       }, { emitEvent: true });
     });
   }
+  
+  ngOnInit(): void {
+    const savedFilters = sessionStorage.getItem(sessionStorageKey);
+    if (savedFilters) {
+      this.searchFormGroup.setValue(JSON.parse(savedFilters), { emitEvent: false });
+      this.onSubmit();
+    }
+  }
 
   onSubmit() {
     if (this.searchFormGroup.invalid) return;
-
     const filter: FilterModel = this.searchFormGroup.value as FilterModel;
+    sessionStorage.setItem(sessionStorageKey, JSON.stringify(filter));
     this.filters.emit(filter);
   }
 }

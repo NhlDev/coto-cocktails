@@ -1,6 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { inject } from "@angular/core";
-import { BASE_API_URL } from "..";
+
+import { BASE_API_URL } from "../tokens";
 
 export abstract class BaseHttpApi {
     private http = inject(HttpClient);

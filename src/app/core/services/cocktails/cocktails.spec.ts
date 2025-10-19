@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { Cocktails } from './cocktails';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { BASE_API_URL } from '../..';
+
+import { Cocktails } from './cocktails';
+import { BASE_API_URL } from '../../tokens';
 import { Cocktail } from '../../types';
 
 

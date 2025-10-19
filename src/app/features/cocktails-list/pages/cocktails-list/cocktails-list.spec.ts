@@ -6,7 +6,7 @@ import { ActivatedRoute, convertToParamMap, RouterLink } from '@angular/router';
 
 import { CocktailsList } from './cocktails-list';
 import { Cocktails } from '../../../../core/services';
-import { BASE_API_URL } from '../../../../core';
+import { BASE_API_URL } from '../../../../core/tokens';
 import { FilterModel } from '../../types';
 import { Cocktail } from '../../../../core/types';
 

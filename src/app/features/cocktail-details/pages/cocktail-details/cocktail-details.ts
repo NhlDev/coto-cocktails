@@ -1,11 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { finalize } from 'rxjs';
 
 import { Cocktail } from '../../../../core/types';
 import { Cocktails } from '../../../../core/services';
+import { CocktailDetailsSkeleton } from '../../components/cocktail-details-skeleton/cocktail-details-skeleton';
 
 @Component({
   selector: 'app-cocktail-details',
@@ -14,6 +16,7 @@ import { Cocktails } from '../../../../core/services';
     MatButtonModule,
     MatCardModule,
     RouterLink,
+    CocktailDetailsSkeleton,
   ],
   templateUrl: './cocktail-details.html',
   styleUrl: './cocktail-details.scss'
@@ -21,6 +24,7 @@ import { Cocktails } from '../../../../core/services';
 export class CocktailDetails implements OnInit {
   ingredientsAndMeasures: string[] = [];
   cocktail: Cocktail | null = null;
+  loading = signal(true);
 
   private cocktailService = inject(Cocktails);
   private route = inject(ActivatedRoute)
@@ -28,12 +32,14 @@ export class CocktailDetails implements OnInit {
   ngOnInit() {
     const cocktailId = this.route.snapshot.paramMap.get('id');
     if (cocktailId && !isNaN(+cocktailId)) {
-      this.cocktailService.searchByID(+cocktailId).subscribe(cocktail => {
-        if (cocktail.length > 0) {
-          this.cocktail = cocktail[0];
-          this.extractIngredientsAndMeasures();
-        }
-      });
+      this.cocktailService.searchByID(+cocktailId)
+        .pipe(finalize(() => this.loading.set(false)))
+        .subscribe(cocktail => {
+          if (cocktail.length > 0) {
+            this.cocktail = cocktail[0];
+            this.extractIngredientsAndMeasures();
+          }
+        });
     }
   }
 

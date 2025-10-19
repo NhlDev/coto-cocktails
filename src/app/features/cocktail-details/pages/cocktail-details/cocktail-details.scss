@@ -1,5 +1,6 @@
 mat-card {
-  margin: 1rem 2rem;
+  margin: auto;
+  max-width: 1360px;
 
   .cocktail-details {
     padding: 1rem;
@@ -22,6 +23,11 @@ mat-card {
     }
   }
 
+  mat-card-actions {
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+
   @media only screen and (max-width: 768px) {
     margin: 0.5rem;
 
@@ -31,5 +37,14 @@ mat-card {
         width: 100%;
       }
     }
+
+    mat-card-actions {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
   }
+}
+
+app-cocktail-details-skeleton {
+  width: 100%;
 }

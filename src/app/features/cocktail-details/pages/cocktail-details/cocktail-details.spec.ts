@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { of, Subject } from 'rxjs';
 
 import { CocktailDetails } from './cocktail-details';
 import { Cocktails } from '../../../../core/services';
@@ -87,4 +87,35 @@ describe('CocktailDetails', () => {
     expect(component.cocktail).toBeNull();
     expect(component.ingredientsAndMeasures).toEqual([]);
   });
+
+  it('should show skeleton while loading and hide it after', () => {
+    const cocktailSubject = new Subject<Cocktail[]>();
+    cocktailsSpy.searchByID.and.returnValue(cocktailSubject.asObservable());
+
+    fixture = TestBed.createComponent(CocktailDetails);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    let skeleton = fixture.nativeElement.querySelector('app-cocktail-details-skeleton');
+    expect(skeleton).toBeTruthy();
+    expect(component.loading()).toBeTrue();
+
+    cocktailSubject.next([mockCocktail]);
+    cocktailSubject.complete();
+    fixture.detectChanges();
+
+    skeleton = fixture.nativeElement.querySelector('app-cocktail-details-skeleton');
+    expect(skeleton).toBeFalsy();
+    expect(component.loading()).toBeFalse();
+    expect(component.cocktail).toEqual(mockCocktail);
+  });
+
+  it('should hide skeleton when not loading', () => {
+    component.loading.set(false);
+    fixture.detectChanges();
+
+    const skeleton = fixture.nativeElement.querySelector('app-cocktail-details-skeleton');
+    expect(skeleton).toBeFalsy();
+  });
+
 });

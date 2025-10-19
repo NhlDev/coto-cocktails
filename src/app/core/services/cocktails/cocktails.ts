@@ -1,16 +1,20 @@
-import { Injectable } from '@angular/core';
-import { map, Observable, switchMap, forkJoin, of } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable, switchMap, forkJoin, of, tap } from 'rxjs';
 
 import { BaseHttpApi } from '../base-http-api';
 import { Cocktail, CocktailResponse } from '../../types';
+import { SyncTabs } from '../sync-tabs/sync-tabs';
 
 @Injectable({ providedIn: 'root' })
 export class Cocktails extends BaseHttpApi {
 
+    private readonly syncService = inject(SyncTabs);
+
     searchByName(name: string): Observable<Cocktail[]> {
         return super.get<CocktailResponse>('search.php', { s: name })
             .pipe(
-                map(response => response.drinks || [])
+                map(response => response.drinks || []),
+                tap(cocktails => this.syncService.syncCocktails(cocktails))
             );
     }
 
@@ -31,7 +35,10 @@ export class Cocktails extends BaseHttpApi {
                                     map(list => list[0])
                                 )
                             )
-                    ).pipe(map(items => items.filter(Boolean) as Cocktail[]));
+                    ).pipe(
+                        map(items => items.filter(Boolean) as Cocktail[]),
+                        tap(cocktails => this.syncService.syncCocktails(cocktails))
+                    );
                 })
             );
     }
@@ -39,7 +46,8 @@ export class Cocktails extends BaseHttpApi {
     searchByID(id: number): Observable<Cocktail[]> {
         return super.get<CocktailResponse>('lookup.php', { i: id })
             .pipe(
-                map(response => response.drinks || [])
+                map(response => response.drinks || []),
+                tap(cocktails => this.syncService.syncCocktails(cocktails))
             );
     }
 }

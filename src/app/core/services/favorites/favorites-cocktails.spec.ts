@@ -40,11 +40,11 @@ describe('FavoritesCocktails', () => {
   });
 
   it('should retrieve favorites from storage', () => {
-    sessionStorage.setItem('favorite_cocktails', JSON.stringify([testCocktail]));
+    service.addFavorite(testCocktail);
     const favorites = service.getFavorites();
     expect(favorites).toContain(testCocktail);
   });
-
+  
   it('should return false for non-favorite cocktail', () => {
     expect(service.isFavorite('nonexistent_id')).toBeFalse();
   });

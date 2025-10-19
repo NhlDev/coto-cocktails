@@ -28,7 +28,10 @@
   </mat-card-content>
 
   <mat-card-actions>
-    <button mat-button color="accent"><mat-icon>favorite</mat-icon> Agregar a favoritos</button>
+    <button mat-button color="accent" (click)="toggleFavorite()">
+      <mat-icon>{{ cocktail?.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+      {{ cocktail?.isFavorite ? 'Eliminar de favoritos' : 'Agregar a favoritos' }}
+    </button>
     <button mat-flat-button color="primary" routerLink="/cocktails">
       <mat-icon>list</mat-icon> Volver a la lista
     </button>

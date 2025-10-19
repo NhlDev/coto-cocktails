@@ -12,9 +12,9 @@
 </div>
 
 <mat-menu #menu="matMenu">
-  <button mat-menu-item>
-    <mat-icon>favorite</mat-icon>
-    <span>Agregar a favoritos</span>
+  <button mat-menu-item (click)="toggleFavorite()">
+    <mat-icon>{{ cocktail()?.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+    <span>{{ cocktail()?.isFavorite ? 'Eliminar de favoritos' : 'Agregar a favoritos' }}</span>
   </button>
   <button class="btn-details" mat-menu-item [routerLink]="['/cocktail', cocktail()?.idDrink]">
     <mat-icon>liquor</mat-icon>

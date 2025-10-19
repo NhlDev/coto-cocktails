@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -19,4 +19,14 @@ import { RouterLink } from '@angular/router';
 })
 export class CocktailItem {
   cocktail = input<Cocktail>();
+  favoriteCocktail = output<Cocktail>();
+  
+  toggleFavorite() {
+    if (this.cocktail()) {
+      this.favoriteCocktail.emit({
+        ...this.cocktail()!,
+        isFavorite: !this.cocktail()?.isFavorite
+      });
+    }
+  }
 }

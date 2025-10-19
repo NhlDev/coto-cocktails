@@ -1,20 +1,20 @@
 <div class="list-layout" [class.showFilters]="showFiltersPanel()">
   @if(!showFavoritesOnly()){
-    <button
-      class="filters-toggle-button"
-      type="button"
-      mat-icon-button
-      (click)="toggleFiltersPanel()"
-      [attr.aria-pressed]="showFiltersPanel()"
-      aria-label="Alternar filtros"
-      title="{{ showFiltersPanel() ? 'Ocultar filtros' : 'Mostrar filtros' }}"
-    >
-      <mat-icon>{{ showFiltersPanel() ? 'filter_alt_off' : 'filter_list' }}</mat-icon>
-    </button>
+  <button
+    class="filters-toggle-button"
+    type="button"
+    mat-icon-button
+    (click)="toggleFiltersPanel()"
+    [attr.aria-pressed]="showFiltersPanel()"
+    aria-label="Alternar filtros"
+    title="{{ showFiltersPanel() ? 'Ocultar filtros' : 'Mostrar filtros' }}"
+  >
+    <mat-icon>{{ showFiltersPanel() ? 'filter_alt_off' : 'filter_list' }}</mat-icon>
+  </button>
   }
 
   <aside class="filters-panel">
-    <app-search-bar (filters)="filterCocktails($event)" />
+    <app-search-bar (filters)="filterCocktails($event)" [initialFilters]="initialFilters()" />
   </aside>
 
   <main>
@@ -30,7 +30,7 @@
 
     @if (loading()) { @for (_ of [0,1,2,3,4,5,6,7,8,9]; track _) {
     <app-cocktail-item-skeleton />
-    } } @else if (showFavoritesOnly() && (favoritesList()?.length || 0) === 0) {
+    } } @else if (showFavoritesOnly() && (favoritesList().length || 0) === 0) {
     <div class="no-results">Aún no has agregado cócteles a tus favoritos.</div>
     } @else if (!showFavoritesOnly() && cocktailsList() === null) {
     <div class="no-results">Por favor, realiza una búsqueda para ver los cócteles.</div>

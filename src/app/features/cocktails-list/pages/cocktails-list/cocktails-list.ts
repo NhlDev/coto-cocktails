@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -9,7 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { finalize, map } from 'rxjs';
 
 import { FilterModel } from '../../types';
-import { Cocktails, FavoritesCocktails } from '../../../../core/services';
+import { Cocktails, FavoritesCocktails, SyncTabs } from '../../../../core/services';
 import { Cocktail } from '../../../../core/types';
 import { SearchBar } from '../../components/search-bar/search-bar';
 import { CocktailItem } from '../../components/cocktail-item/cocktail-item';
@@ -30,7 +30,7 @@ import { CocktailItemSkeleton } from '../../components/cocktail-item-skeleton/co
   templateUrl: './cocktails-list.html',
   styleUrl: './cocktails-list.scss'
 })
-export class CocktailsList implements OnInit {
+export class CocktailsList {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly isHandset = toSignal(
     this.breakpointObserver
@@ -42,11 +42,14 @@ export class CocktailsList implements OnInit {
   );
   private readonly cocktailService = inject(Cocktails);
   private readonly favoritesService = inject(FavoritesCocktails);
+  private readonly broadcastService = inject(SyncTabs);
 
+  initialFilters = this.broadcastService.filtersSignal;
   showFiltersPanel = signal(true);
-
   cocktailsList = signal<Cocktail[] | null>(null);
-  favoritesList = signal<Cocktail[] | null>(null);
+
+  // Convierte el Observable de favoritos en una señal reactiva
+  favoritesList = toSignal(this.favoritesService.favorites$, { initialValue: [] as Cocktail[] });
 
   cocktailListToShow = computed(() => {
     if (this.showFavoritesOnly()) {
@@ -56,7 +59,6 @@ export class CocktailsList implements OnInit {
   });
 
   loading = signal(false);
-
   showFavoritesOnly = signal(false);
 
   readonly estimatedSize = 175;
@@ -64,12 +66,31 @@ export class CocktailsList implements OnInit {
 
   constructor() {
     if (this.isHandset()) {
-      this.showFiltersPanel.set(false); // mantener los filtros cerrados en móviles
+      this.showFiltersPanel.set(false);
     }
-  }
 
-  ngOnInit(): void {
-    this.favoritesList.set(this.favoritesService.getFavorites());
+    // Efecto para reaccionar a los cambios de la señal de cócteles del servicio
+    effect(() => {
+      const syncedCocktails = this.broadcastService.cocktailsSignal();
+      if (syncedCocktails.length > 0) {
+        // Marcar favoritos en la lista que llega de otra pestaña
+        const cocktailsWithFavorites = syncedCocktails.map(c => ({
+          ...c,
+          isFavorite: this.favoritesService.isFavorite(c.idDrink)
+        }));
+        this.cocktailsList.set(cocktailsWithFavorites);
+      }
+    });
+
+    // Efecto: si cambian los favoritos (en esta u otra pestaña), reflejarlo en la lista actual
+    effect(() => {
+      const favorites = this.favoritesList(); // signal derivada de favorites$
+      const favIds = new Set(favorites.map(f => f.idDrink));
+      this.cocktailsList.update(list => {
+        if (!list) return list;
+        return list.map(c => ({ ...c, isFavorite: favIds.has(c.idDrink) }));
+      });
+    });
   }
 
   toggleFiltersPanel() {
@@ -108,24 +129,28 @@ export class CocktailsList implements OnInit {
     if (this.isHandset()) {
       this.toggleFiltersPanel();
     }
+
+    this.broadcastService.syncFilters(filter);
   }
 
   toggleFavorite(cocktail: Cocktail) {
+    // La lógica ahora solo llama al servicio. La UI se actualizará reactivamente.
     if (cocktail.isFavorite) {
       this.favoritesService.addFavorite(cocktail);
     } else {
       this.favoritesService.removeFavorite(cocktail.idDrink);
     }
-    this.cocktailsList.update(cocktails => {
-      return cocktails?.map(c => {
+
+    // actualizo el estado del cóctel en la lista actual
+    this.cocktailsList.update((list: Cocktail[] | null) => {
+      if (list === null) return list;
+      return list.map(c => {
         if (c.idDrink === cocktail.idDrink) {
-          return { ...c, isFavorite: !c.isFavorite };
+          return { ...c, isFavorite: cocktail.isFavorite };
         }
         return c;
-      }) || null;
+      });
     });
-
-    this.favoritesList.set(this.favoritesService.getFavorites());
   }
 
   showFavoriteCocktails() {

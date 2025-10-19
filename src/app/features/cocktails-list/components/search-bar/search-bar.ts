@@ -1,4 +1,4 @@
-import { Component, inject, output, } from '@angular/core';
+import { Component, effect, inject, input, output, } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -25,12 +25,26 @@ import { FilterModel } from '../../types';
 export class SearchBar {
   private fb = inject(FormBuilder);
 
+  initialFilters = input<FilterModel>({
+    searchInput: '',
+    filterBy: 'name',
+  });
   filters = output<FilterModel>();
 
   searchFormGroup = this.fb.group({
     searchInput: ['', [Validators.required, Validators.maxLength(50)]],
     filterBy: ['name', [Validators.required]],
   });
+
+  constructor() {
+    effect(() => {
+      const filters = this.initialFilters();
+      this.searchFormGroup.setValue({
+        searchInput: filters.searchInput,
+        filterBy: filters.filterBy,
+      }, { emitEvent: true });
+    });
+  }
 
   onSubmit() {
     if (this.searchFormGroup.invalid) return;

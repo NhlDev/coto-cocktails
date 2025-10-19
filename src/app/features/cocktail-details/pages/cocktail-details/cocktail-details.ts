@@ -1,9 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 
 import { Cocktail } from '../../../../core/types';
 import { Cocktails, FavoritesCocktails } from '../../../../core/services';
@@ -21,14 +21,17 @@ import { CocktailDetailsSkeleton } from '../../components/cocktail-details-skele
   templateUrl: './cocktail-details.html',
   styleUrl: './cocktail-details.scss'
 })
-export class CocktailDetails implements OnInit {
+export class CocktailDetails implements OnInit, OnDestroy {
+
   ingredientsAndMeasures: string[] = [];
   cocktail: Cocktail | null = null;
   loading = signal(true);
 
   private cocktailService = inject(Cocktails);
   private favoritesService = inject(FavoritesCocktails);
-  private route = inject(ActivatedRoute)
+  private route = inject(ActivatedRoute);
+
+  private favoriteSubscription: Subscription | null = null;
 
   ngOnInit() {
     const cocktailId = this.route.snapshot.paramMap.get('id');
@@ -38,24 +41,37 @@ export class CocktailDetails implements OnInit {
         .subscribe(cocktail => {
           if (cocktail.length > 0) {
             this.cocktail = cocktail[0];
-
-            // reviso si es un favorito
             this.cocktail.isFavorite = this.favoritesService.isFavorite(this.cocktail.idDrink);
-
             this.extractIngredientsAndMeasures();
           }
         });
+
+      this.favoriteSubscription = this.favoritesService.favorites$.subscribe(() => {
+        if (this.cocktail) {
+          setTimeout(() => {
+            if (this.cocktail) {
+              this.cocktail.isFavorite = this.favoritesService.isFavorite(this.cocktail.idDrink);
+            }
+          }, 0);
+        }
+      });
+
+    } else {
+      this.loading.set(false);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.favoriteSubscription?.unsubscribe();
   }
 
   toggleFavorite() {
     if (!this.cocktail) return;
-    if (this.favoritesService.isFavorite(this.cocktail.idDrink)) {
+
+    if (this.cocktail.isFavorite) {
       this.favoritesService.removeFavorite(this.cocktail.idDrink);
-      this.cocktail.isFavorite = false;
     } else {
-      this.favoritesService.addFavorite(this.cocktail);
-      this.cocktail.isFavorite = true;
+      this.favoritesService.addFavorite({ ...this.cocktail, isFavorite: true });
     }
   }
 

@@ -5,7 +5,7 @@ import { FAVORITE_STORAGE } from '../../tokens';
 
 describe('FavoritesCocktails', () => {
   let service: FavoritesCocktails;
-  const testCocktail = { idDrink: '12345', strDrink: 'Test Cocktail' } as any;
+  const testCocktail = { idDrink: '12345', strDrink: 'Test Cocktail', isFavorite: true } as any;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

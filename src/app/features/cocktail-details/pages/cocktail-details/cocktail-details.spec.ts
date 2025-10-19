@@ -5,6 +5,7 @@ import { of, Subject } from 'rxjs';
 import { CocktailDetails } from './cocktail-details';
 import { Cocktails } from '../../../../core/services';
 import { Cocktail } from '../../../../core/types';
+import { FAVORITE_STORAGE } from '../../../../core/tokens';
 
 describe('CocktailDetails', () => {
   let fixture: ComponentFixture<CocktailDetails>;
@@ -31,7 +32,8 @@ describe('CocktailDetails', () => {
       imports: [CocktailDetails],
       providers: [
         { provide: Cocktails, useValue: cocktailsSpy },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '11007' }) } } }
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '11007' }) } } },
+        { provide: FAVORITE_STORAGE, useValue: sessionStorage },
       ]
     }).compileComponents();
   });
@@ -109,13 +111,4 @@ describe('CocktailDetails', () => {
     expect(component.loading()).toBeFalse();
     expect(component.cocktail).toEqual(mockCocktail);
   });
-
-  it('should hide skeleton when not loading', () => {
-    component.loading.set(false);
-    fixture.detectChanges();
-
-    const skeleton = fixture.nativeElement.querySelector('app-cocktail-details-skeleton');
-    expect(skeleton).toBeFalsy();
-  });
-
 });

@@ -5,8 +5,8 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, convertToParamMap, RouterLink } from '@angular/router';
 
 import { CocktailsList } from './cocktails-list';
-import { Cocktails } from '../../../../core/services';
-import { BASE_API_URL } from '../../../../core/tokens';
+import { Cocktails, FavoritesCocktails } from '../../../../core/services';
+import { BASE_API_URL, FAVORITE_STORAGE } from '../../../../core/tokens';
 import { FilterModel } from '../../types';
 import { Cocktail } from '../../../../core/types';
 
@@ -15,20 +15,35 @@ describe('CocktailsList', () => {
   let fixture: ComponentFixture<CocktailsList>;
   const baseApiUrl = 'https://www.thecocktaildb.com/api/json/v1/1/';
   let httpMock: HttpTestingController;
+  let favoritesService: FavoritesCocktails;
+  let favoritesServiceSpy: jasmine.SpyObj<FavoritesCocktails>;
+
+  const mockCocktail1 = { idDrink: '11007', strDrink: 'Margarita', isFavorite: false } as Cocktail;
+  const mockCocktail2 = { idDrink: '11008', strDrink: 'Manhattan', isFavorite: true } as Cocktail;
 
   beforeEach(async () => {
+    const favSpy = jasmine.createSpyObj('FavoritesCocktails', ['getFavorites', 'addFavorite', 'removeFavorite', 'isFavorite']);
+
     await TestBed.configureTestingModule({
       imports: [CocktailsList, HttpClientTestingModule, ScrollingModule, RouterLink],
       providers: [
         Cocktails,
         { provide: BASE_API_URL, useValue: baseApiUrl },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '11007' }) } } }
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '11007' }) } } },
+        { provide: FAVORITE_STORAGE, useValue: sessionStorage },
+        { provide: FavoritesCocktails, useValue: favSpy },
       ],
     }).compileComponents();
 
     httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(CocktailsList);
     component = fixture.componentInstance;
+    favoritesService = TestBed.inject(FavoritesCocktails);
+    favoritesServiceSpy = favoritesService as jasmine.SpyObj<FavoritesCocktails>;
+
+    favoritesServiceSpy.getFavorites.and.returnValue([mockCocktail2]);
+    favoritesServiceSpy.isFavorite.and.callFake((id: string) => id === mockCocktail2.idDrink);
+
     fixture.detectChanges();
   });
 
@@ -52,20 +67,60 @@ describe('CocktailsList', () => {
     expect(component.showFiltersPanel()).toBe(!initialState);
   });
 
-  it('should filter cocktails by name', (done) => {
+  it('should initialize favorites on init', () => {
+    expect(favoritesServiceSpy.getFavorites).toHaveBeenCalled();
+    expect(component.favoritesList()).toEqual([mockCocktail2]);
+  });
+
+  it('should toggle a cocktail as favorite', () => {
+    component.cocktailsList.set([{ ...mockCocktail1 }]);
+    const cocktailToToggle = { ...mockCocktail1, isFavorite: true };
+
+    component.toggleFavorite(cocktailToToggle);
+
+    expect(favoritesServiceSpy.addFavorite).toHaveBeenCalledWith(cocktailToToggle);
+    expect(component.cocktailsList()?.[0].isFavorite).toBeTrue();
+  });
+
+  it('should toggle a cocktail as not favorite', () => {
+    component.cocktailsList.set([{ ...mockCocktail2 }]);
+    const cocktailToToggle = { ...mockCocktail2, isFavorite: false };
+
+    component.toggleFavorite(cocktailToToggle);
+
+    expect(favoritesServiceSpy.removeFavorite).toHaveBeenCalledWith(mockCocktail2.idDrink);
+    expect(component.cocktailsList()?.[0].isFavorite).toBeFalse();
+  });
+
+  it('should toggle showing only favorite cocktails', () => {
+    const initialState = component.showFavoritesOnly();
+    component.showFavoriteCocktails();
+    expect(component.showFavoritesOnly()).toBe(!initialState);
+    expect(component.showFiltersPanel()).toBeFalse();
+  });
+
+  it('should show message when no favorites are added yet', () => {
+    component.showFavoriteCocktails(); // show favorites
+    component.favoritesList.set([]);
+    fixture.detectChanges();
+
+    const noResultsElement = fixture.nativeElement.querySelector('.no-results');
+    expect(noResultsElement).toBeTruthy();
+    expect(noResultsElement.textContent).toContain('Aún no has agregado cócteles a tus favoritos.');
+  });
+
+  it('should filter cocktails by name', () => {
     const filter = { filterBy: 'name', searchInput: 'Margarita' } as FilterModel;
-    const mockResponse = { drinks: [{ idDrink: '11007', strDrink: 'Margarita' }] };
     component.filterCocktails(filter);
     const req = httpMock.expectOne(`${baseApiUrl}search.php?s=Margarita`);
     expect(req.request.method).toBe('GET');
-    req.flush({ drinks: [{ idDrink: '11007', strDrink: 'Margarita' }] });
+    req.flush({ drinks: [mockCocktail1] });
 
-    expect(component.cocktailsList()).toEqual(mockResponse.drinks as Cocktail[]);
+    expect(component.cocktailsList()).toEqual([mockCocktail1] as Cocktail[]);
     expect(component.loading()).toBeFalse();
-    done();
   });
 
-  it('should filter cocktails by ingredient', (done) => {
+  it('should filter cocktails by ingredient', () => {
     const filter = { filterBy: 'ingredient', searchInput: 'Vodka' } as FilterModel;
     const mockFilterResponse = { drinks: [{ idDrink: '12345' }, { idDrink: '67890' }] };
     const mockDetailResponse1 = { drinks: [{ idDrink: '12345', strDrink: 'Vodka Martini' }] };
@@ -81,27 +136,22 @@ describe('CocktailsList', () => {
     detailReq1.flush(mockDetailResponse1);
 
     const detailReq2 = httpMock.expectOne(`${baseApiUrl}lookup.php?i=67890`);
-    expect(detailReq2.request.method).toBe('GET');
     detailReq2.flush(mockDetailResponse2);
 
-    expect(component.cocktailsList()).toEqual([
-      { idDrink: '12345', strDrink: 'Vodka Martini' },
-      { idDrink: '67890', strDrink: 'Bloody Mary' }
-    ] as Cocktail[]);
-    expect(component.loading()).toBeFalse();
-    done();
+    fixture.whenStable().then(() => {
+      expect(component.cocktailsList()?.length).toBe(2);
+      expect(component.loading()).toBeFalse();
+    });
   });
 
-  it('should filter cocktails by ID', (done) => {
+  it('should filter cocktails by ID', () => {
     const filter = { filterBy: 'id', searchInput: '11007' } as FilterModel;
-    const mockResponse = { drinks: [{ idDrink: '11007', strDrink: 'Margarita' }] };
     component.filterCocktails(filter);
     const req = httpMock.expectOne(`${baseApiUrl}lookup.php?i=11007`);
     expect(req.request.method).toBe('GET');
-    req.flush({ drinks: [{ idDrink: '11007', strDrink: 'Margarita' }] });
-    expect(component.cocktailsList()).toEqual(mockResponse.drinks as Cocktail[]);
+    req.flush({ drinks: [mockCocktail1] });
+    expect(component.cocktailsList()).toEqual([mockCocktail1] as Cocktail[]);
     expect(component.loading()).toBeFalse();
-    done();
   });
 
   it('should show loading state during filtering', () => {

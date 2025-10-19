@@ -129,9 +129,13 @@ export class CocktailsList implements OnInit {
   }
 
   showFavoriteCocktails() {
-    // si voy a mostrar solo favoritos y el panel de filtros está abierto, lo cierro
-    if (!this.showFavoritesOnly() && this.showFiltersPanel()) {
-      this.toggleFiltersPanel();
+    const showFavoriteList = !this.showFavoritesOnly();
+
+    if (showFavoriteList) {
+      this.showFiltersPanel.set(false);
+    }
+    else if (!this.isHandset() && (this.cocktailsList() === null || this.cocktailsList()?.length === 0)) {
+      this.showFiltersPanel.set(true);
     }
 
     this.showFavoritesOnly.update(value => !value);

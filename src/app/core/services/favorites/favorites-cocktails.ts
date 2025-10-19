@@ -20,7 +20,10 @@ export class FavoritesCocktails {
     if (this.cachedFavorites) return this.cachedFavorites;
 
     const favorites = this.storage.getItem(STORAGE_KEY);
-    return favorites ? JSON.parse(favorites) : [];
+    const parsedFavorites = favorites ? JSON.parse(favorites) : [];
+    parsedFavorites.forEach((c: Cocktail) => c.isFavorite = true);
+    this.cachedFavorites = parsedFavorites;
+    return parsedFavorites;
   }
 
   addFavorite(cocktail: Cocktail): void {

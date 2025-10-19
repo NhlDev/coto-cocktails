@@ -38,6 +38,10 @@ export class CocktailDetails implements OnInit {
         .subscribe(cocktail => {
           if (cocktail.length > 0) {
             this.cocktail = cocktail[0];
+
+            // reviso si es un favorito
+            this.cocktail.isFavorite = this.favoritesService.isFavorite(this.cocktail.idDrink);
+
             this.extractIngredientsAndMeasures();
           }
         });

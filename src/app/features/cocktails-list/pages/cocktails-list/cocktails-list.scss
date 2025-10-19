@@ -45,7 +45,7 @@
   }
 
   main {
-    overflow: hidden;
+    overflow: auto;
     padding-block-end: 1vh;
     position: relative; // Necesario para el posicionamiento absoluto del hijo
   }

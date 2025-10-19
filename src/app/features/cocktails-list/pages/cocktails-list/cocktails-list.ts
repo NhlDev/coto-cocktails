@@ -5,8 +5,8 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from "@angular/material/input";
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { finalize, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { finalize, map } from 'rxjs';
 
 import { FilterModel } from '../../types';
 import { Cocktails, FavoritesCocktails } from '../../../../core/services';

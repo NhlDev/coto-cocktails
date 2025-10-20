@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { map, Observable, switchMap, forkJoin, of, tap } from 'rxjs';
+import { map, Observable, switchMap, forkJoin, of, tap, catchError, EMPTY } from 'rxjs';
+import { MatSnackBar, } from '@angular/material/snack-bar';
 
 import { BaseHttpApi } from '../base-http-api';
 import { Cocktail, CocktailResponse } from '../../types';
@@ -9,18 +10,21 @@ import { SyncTabs } from '../sync-tabs/sync-tabs';
 export class Cocktails extends BaseHttpApi {
 
     private readonly syncService = inject(SyncTabs);
+    private readonly snackCtrl = inject(MatSnackBar)
 
     searchByName(name: string): Observable<Cocktail[]> {
         return super.get<CocktailResponse>('search.php', { s: name })
             .pipe(
+                catchError(err => this.handleErrors(err)),
                 map(response => response.drinks || []),
-                tap(cocktails => this.syncService.syncCocktails(cocktails))
+                tap(cocktails => this.syncService.syncCocktails(cocktails)),
             );
     }
 
     searchByIngredient(ingredient: string): Observable<Cocktail[]> {
         return super.get<CocktailResponse>('filter.php', { i: ingredient })
             .pipe(
+                catchError(err => this.handleErrors(err)),
                 switchMap(response => {
                     const minimal = Array.isArray(response.drinks) ? response.drinks : [];
                     if (!minimal.length) return of([]);
@@ -37,7 +41,7 @@ export class Cocktails extends BaseHttpApi {
                             )
                     ).pipe(
                         map(items => items.filter(Boolean) as Cocktail[]),
-                        tap(cocktails => this.syncService.syncCocktails(cocktails))
+                        tap(cocktails => this.syncService.syncCocktails(cocktails)),
                     );
                 })
             );
@@ -46,7 +50,16 @@ export class Cocktails extends BaseHttpApi {
     searchByID(id: number): Observable<Cocktail[]> {
         return super.get<CocktailResponse>('lookup.php', { i: id })
             .pipe(
+                catchError(err => this.handleErrors(err)),
                 map(response => response.drinks || []),
             );
+    }
+
+    private handleErrors(err: any) {
+        this.snackCtrl.open(
+            'Error al obtener los datos de los cócteles', 'Cerrar',
+            { duration: 10000, verticalPosition: 'top', horizontalPosition: 'center', politeness: 'assertive' }
+        );
+        return EMPTY;
     }
 }

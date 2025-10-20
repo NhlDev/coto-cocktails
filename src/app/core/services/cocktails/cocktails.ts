@@ -47,7 +47,6 @@ export class Cocktails extends BaseHttpApi {
         return super.get<CocktailResponse>('lookup.php', { i: id })
             .pipe(
                 map(response => response.drinks || []),
-                tap(cocktails => this.syncService.syncCocktails(cocktails))
             );
     }
 }

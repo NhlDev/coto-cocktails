@@ -1,22 +1,29 @@
 <div class="cocktail-item">
-  <img class="cocktail-image" [src]="cocktail()?.strDrinkThumb" [alt]="cocktail()?.strDrink" />
+  <img class="cocktail-image" [src]="cocktail()?.strDrinkThumb" [alt]="cocktail()?.strDrink" loading="lazy" />
   <div class="cocktail-info">
-    <h1>{{ cocktail()?.strDrink }}</h1>
+    <h2>{{ cocktail()?.strDrink }}</h2>
     <p>{{ cocktail()?.strAlcoholic }} - {{ cocktail()?.strCategory }}</p>
     <p>{{ cocktail()?.strGlass }}</p>
   </div>
 
-  <button class="cocktail-menu" matIconButton aria-label="Más opciones" [matMenuTriggerFor]="menu">
+  <button
+    class="cocktail-menu"
+    matIconButton
+    [attr.aria-label]="'Más opciones para ' + (cocktail()?.strDrink || 'este cóctel')"
+    [matMenuTriggerFor]="menu"
+  >
     <mat-icon>more_vert</mat-icon>
   </button>
 </div>
 
-<mat-menu #menu="matMenu">
-  <button mat-menu-item (click)="toggleFavorite()">
+<mat-menu #menu="matMenu" xPosition="before">
+  <button mat-menu-item (click)="toggleFavorite()"
+          [attr.aria-label]="(cocktail()?.isFavorite ? 'Eliminar de favoritos: ' : 'Agregar a favoritos: ') + (cocktail()?.strDrink || '')">
     <mat-icon>{{ cocktail()?.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
     <span>{{ cocktail()?.isFavorite ? 'Eliminar de favoritos' : 'Agregar a favoritos' }}</span>
   </button>
-  <button class="btn-details" mat-menu-item [routerLink]="['/cocktail', cocktail()?.idDrink]">
+  <button class="btn-details" mat-menu-item [routerLink]="['/cocktail', cocktail()?.idDrink]"
+          [attr.aria-label]="'Ver detalles de ' + (cocktail()?.strDrink || '')">
     <mat-icon>liquor</mat-icon>
     <span>Ver detalles</span>
   </button>

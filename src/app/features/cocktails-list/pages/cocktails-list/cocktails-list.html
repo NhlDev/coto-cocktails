@@ -6,22 +6,38 @@
     mat-icon-button
     (click)="toggleFiltersPanel()"
     [attr.aria-pressed]="showFiltersPanel()"
-    aria-label="Alternar filtros"
+    [attr.aria-expanded]="showFiltersPanel()"
+    [attr.aria-controls]="'filters-panel'"
+    aria-label="{{ showFiltersPanel() ? 'Ocultar filtros' : 'Mostrar filtros' }}"
     title="{{ showFiltersPanel() ? 'Ocultar filtros' : 'Mostrar filtros' }}"
   >
     <mat-icon>{{ showFiltersPanel() ? 'filter_alt_off' : 'filter_list' }}</mat-icon>
   </button>
   }
 
-  <aside class="filters-panel">
+  <aside
+    id="filters-panel"
+    class="filters-panel"
+    role="complementary"
+    aria-label="Filtros de búsqueda"
+    [attr.aria-hidden]="!showFiltersPanel()"
+  >
     <app-search-bar (filters)="filterCocktails($event)" [initialFilters]="initialFilters()" />
   </aside>
 
-  <main>
+  <main [attr.aria-busy]="loading()">
+    <div aria-live="polite" style="position:absolute;left:-9999px;height:1px;width:1px;overflow:hidden;">
+      @if (loading()) { Cargando resultados... }
+      @else if (showFavoritesOnly() && (favoritesList().length || 0) === 0) { No tienes favoritos. }
+      @else if (!showFavoritesOnly() && cocktailsList() === null) { Esperando búsqueda. }
+      @else if (!showFavoritesOnly() && (cocktailsList()?.length || 0) === 0) { No se encontraron cócteles. }
+    </div>
+
     <button
       mat-icon-button
       class="favorites-button"
-      aria-label="Ver favoritos"
+      [attr.aria-pressed]="showFavoritesOnly()"
+      [attr.aria-label]="showFavoritesOnly() ? 'Ver todos los cócteles' : 'Ver favoritos'"
       [title]="showFavoritesOnly() ? 'Ver todos los cócteles' : 'Ver favoritos'"
       (click)="showFavoriteCocktails()"
     >
@@ -29,7 +45,7 @@
     </button>
 
     @if (loading()) { @for (_ of [0,1,2,3,4,5,6,7,8,9]; track _) {
-    <app-cocktail-item-skeleton />
+    <app-cocktail-item-skeleton aria-hidden="true" />
     } } @else if (showFavoritesOnly() && (favoritesList().length || 0) === 0) {
     <div class="no-results">Aún no has agregado cócteles a tus favoritos.</div>
     } @else if (!showFavoritesOnly() && cocktailsList() === null) {
@@ -43,9 +59,12 @@
       class="virtual-viewport"
       [itemSize]="estimatedSize"
       orientation="vertical"
+      role="list"
+      aria-label="Resultados de cócteles"
     >
       <div
         class="virtual-item"
+        role="listitem"
         *cdkVirtualFor="let cocktail of cocktailListToShow(); trackBy: trackBy"
       >
         <app-cocktail-item [cocktail]="cocktail" (favoriteCocktail)="toggleFavorite($event)" />

@@ -1,10 +1,10 @@
-import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
+import { Component, inject, signal, computed, effect, } from '@angular/core';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatIconButton } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from "@angular/material/input";
-import { ScrollingModule } from '@angular/cdk/scrolling';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { finalize, map } from 'rxjs';
 
@@ -85,7 +85,7 @@ export class CocktailsList {
     // Efecto: si cambian los favoritos (en esta u otra pestaña), reflejarlo en la lista actual
     effect(() => {
       const favorites = this.favoritesList(); // signal derivada de favorites$
-      const favIds = new Set(favorites.map(f => f.idDrink));
+      const favIds = new Set(favorites.map((f: Cocktail) => f.idDrink));
       this.cocktailsList.update(list => {
         if (!list) return list;
         return list.map(c => ({ ...c, isFavorite: favIds.has(c.idDrink) }));

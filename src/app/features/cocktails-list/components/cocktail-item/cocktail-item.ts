@@ -2,9 +2,10 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { RouterLink } from '@angular/router';
+import { MatChipsModule } from '@angular/material/chips';
 
 import { Cocktail } from '../../../../core/types';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-cocktail-item',
@@ -13,6 +14,7 @@ import { RouterLink } from '@angular/router';
     MatIcon,
     MatMenuModule,
     RouterLink,
+    MatChipsModule,
   ],
   templateUrl: './cocktail-item.html',
   styleUrl: './cocktail-item.scss'

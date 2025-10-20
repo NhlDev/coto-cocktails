@@ -2,8 +2,12 @@
   <img class="cocktail-image" [src]="cocktail()?.strDrinkThumb" [alt]="cocktail()?.strDrink" loading="lazy" />
   <div class="cocktail-info">
     <h2>{{ cocktail()?.strDrink }}</h2>
-    <p>{{ cocktail()?.strAlcoholic }} - {{ cocktail()?.strCategory }}</p>
-    <p>{{ cocktail()?.strGlass }}</p>
+
+    <mat-chip-set>
+      <mat-chip appearance="outlined" color="primary" selected>{{ cocktail()?.strCategory }}</mat-chip>
+      <mat-chip appearance="outlined">{{ cocktail()?.strAlcoholic }}</mat-chip>
+      <mat-chip appearance="outlined">{{ cocktail()?.strGlass }}</mat-chip>
+    </mat-chip-set>
   </div>
 
   <button

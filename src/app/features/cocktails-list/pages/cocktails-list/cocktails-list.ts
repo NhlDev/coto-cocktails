@@ -7,6 +7,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from "@angular/material/input";
 import { toSignal } from '@angular/core/rxjs-interop';
 import { finalize, map } from 'rxjs';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { FilterModel } from '../../types';
 import { Cocktails, FavoritesCocktails, SyncTabs } from '../../../../core/services';
@@ -26,6 +27,7 @@ import { CocktailItemSkeleton } from '../../components/cocktail-item-skeleton/co
     SearchBar,
     CocktailItem,
     CocktailItemSkeleton,
+    MatSnackBarModule,
   ],
   templateUrl: './cocktails-list.html',
   styleUrl: './cocktails-list.scss'
@@ -43,6 +45,7 @@ export class CocktailsList {
   private readonly cocktailService = inject(Cocktails);
   private readonly favoritesService = inject(FavoritesCocktails);
   private readonly broadcastService = inject(SyncTabs);
+  private snack = inject(MatSnackBar);
 
   initialFilters = this.broadcastService.filtersSignal;
   showFiltersPanel = signal(true);
@@ -60,6 +63,7 @@ export class CocktailsList {
 
   loading = signal(false);
   showFavoritesOnly = signal(false);
+  lastAppliedFilter = signal<FilterModel | null>(null);
 
   readonly estimatedSize = 175;
   readonly trackBy = (idx: number, c: Cocktail) => c.idDrink;
@@ -98,6 +102,7 @@ export class CocktailsList {
   }
 
   filterCocktails(filter: FilterModel) {
+    this.lastAppliedFilter.set(filter);
     let cocktailsObservable$;
     this.loading.set(true);
     this.cocktailsList.set(null);
@@ -133,12 +138,20 @@ export class CocktailsList {
     this.broadcastService.syncFilters(filter);
   }
 
+  clearSearch() {
+    this.lastAppliedFilter.set(null);
+    this.cocktailsList.set(null);
+    this.showFavoritesOnly.set(false);
+    if (!this.isHandset()) this.showFiltersPanel.set(true);
+  }
+
   toggleFavorite(cocktail: Cocktail) {
-    // La lógica ahora solo llama al servicio. La UI se actualizará reactivamente.
     if (cocktail.isFavorite) {
       this.favoritesService.addFavorite(cocktail);
+      this.snack.open(`Agregado a favoritos: ${cocktail.strDrink}`, undefined, { duration: 1800 });
     } else {
       this.favoritesService.removeFavorite(cocktail.idDrink);
+      this.snack.open(`Quitado de favoritos: ${cocktail.strDrink}`, undefined, { duration: 1800 });
     }
 
     // actualizo el estado del cóctel en la lista actual
